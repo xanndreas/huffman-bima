@@ -11,8 +11,6 @@ class CreateDraftsTable extends Migration
         Schema::create('drafts', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('to');
-            $table->string('cc')->nullable();
-            $table->string('bcc')->nullable();
             $table->string('subject');
             $table->longText('message');
             $table->timestamps();

@@ -7,6 +7,7 @@ use App\Support\HasAdvancedFilter;
 use Carbon\Carbon;
 use Hash;
 use Illuminate\Contracts\Translation\HasLocalePreference;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -67,6 +68,23 @@ class User extends Authenticatable implements HasLocalePreference
         'is_approved',
     ];
 
+    protected $appends = [
+        'email_configurations'
+    ];
+
+    public function getEmailConfigurationsAttribute(): array
+    {
+        return [
+            'transport' => 'smtp',
+            'host' => "huffman.mythesis.website",
+            'port' => 465,
+            'username' => $this->email,
+            'password' => $this->email_credentials,
+            'encryption' => "tls",
+            'timeout' => null,
+        ];
+    }
+
     public function getIsAdminAttribute()
     {
         return $this->roles()->where('title', 'Admin')->exists();
@@ -74,7 +92,7 @@ class User extends Authenticatable implements HasLocalePreference
 
     public function scopeAdmins()
     {
-        return $this->whereHas('roles', fn ($q) => $q->where('title', 'Admin'));
+        return $this->whereHas('roles', fn($q) => $q->where('title', 'Admin'));
     }
 
     public function preferredLocale()

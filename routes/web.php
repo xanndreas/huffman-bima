@@ -1,18 +1,23 @@
 <?php
 
-use App\Http\Controllers\Admin\DraftController;
-use App\Http\Controllers\Admin\HomeController;
-use App\Http\Controllers\Admin\PermissionController;
-use App\Http\Controllers\Admin\RoleController;
-use App\Http\Controllers\Admin\SentController;
-use App\Http\Controllers\Admin\SettingController;
-use App\Http\Controllers\Admin\TrashController;
-use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\ApprovalController;
 use App\Http\Controllers\Auth\UserProfileController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\LanguageController;
 
+use App\Http\Controllers\Admin\EmailController;
+
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register web routes for your application. These
+| routes are loaded by the RouteServiceProvider within a group which
+| contains the "web" middleware group. Now create something great!
+|
+*/
 Route::redirect('/', '/login');
 
 Auth::routes();
@@ -20,28 +25,17 @@ Auth::routes();
 Route::get('email/approval', [ApprovalController::class, 'show'])->name('approval.notice');
 
 Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth', 'approved']], function () {
-    Route::get('/', [HomeController::class, 'index'])->name('home');
+    Route::get('/', [EmailController::class, 'index'])->name('home');
 
-    // Permissions
-    Route::resource('permissions', PermissionController::class, ['except' => ['store', 'update', 'destroy']]);
+    Route::post('adapters/{folder}', [EmailController::class, 'adapters'])->name('adapters');
 
-    // Roles
-    Route::resource('roles', RoleController::class, ['except' => ['store', 'update', 'destroy']]);
+    Route::post('compose/sends', [EmailController::class, 'composeSend'])->name('compose.sends');
 
-    // Users
-    Route::resource('users', UserController::class, ['except' => ['store', 'update', 'destroy']]);
+    Route::post('compose/drafts', [EmailController::class, 'composeDraft'])->name('compose.drafts');
 
-    // Draft
-    Route::resource('drafts', DraftController::class, ['except' => ['store', 'update', 'destroy']]);
+    Route::post('compose/delete', [EmailController::class, 'composeDelete'])->name('compose.delete');
 
-    // Setting
-    Route::resource('settings', SettingController::class, ['except' => ['store', 'update', 'destroy']]);
-
-    // Sent
-    Route::resource('sents', SentController::class, ['except' => ['store', 'update', 'destroy']]);
-
-    // Trash
-    Route::resource('trashes', TrashController::class, ['except' => ['store', 'update', 'destroy']]);
+    Route::post('encoders', [EmailController::class, 'encoders'])->name('encoders');
 });
 
 Route::group(['prefix' => 'profile', 'as' => 'profile.', 'middleware' => ['auth']], function () {
@@ -49,3 +43,6 @@ Route::group(['prefix' => 'profile', 'as' => 'profile.', 'middleware' => ['auth'
         Route::get('/', [UserProfileController::class, 'show'])->name('show');
     }
 });
+
+// locale Route
+Route::get('lang/{locale}', [LanguageController::class, 'swap']);

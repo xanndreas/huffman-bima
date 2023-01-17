@@ -42,14 +42,18 @@ class Draft extends Model
 
     protected $fillable = [
         'to',
-        'cc',
-        'bcc',
         'subject',
         'message',
+        'user_id'
     ];
 
     protected function serializeDate(DateTimeInterface $date)
     {
         return $date->format('Y-m-d H:i:s');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }
